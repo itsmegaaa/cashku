@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { ChevronRight, ArrowLeft, Check } from 'lucide-react';
+import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { BookIconType, ThemeMode, WalletType } from '../../types';
-import { SlideWelcome } from './SlideWelcome';
+import { SlideConsent } from './SlideConsent';
 import { SlideBookSetup } from './SlideBookSetup';
 import { SlideWalletSetup } from './SlideWalletSetup';
 import { SlideThemeSetup } from './SlideThemeSetup';
+import { SlideWelcomeFinish } from './SlideWelcomeFinish';
 
 export const OnboardingFlow: React.FC = () => {
+  // Steps: 0 = Consent, 1 = Setup Buku, 2 = Setup Akun, 3 = Pilih Tema, 4 = Welcome
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [error, setError] = useState<string>('');
   
-  // Stored onboarding values
+  // Form State
   const [bookData, setBookData] = useState<{ name: string; icon: BookIconType; color: string }>({
     name: 'Buku Pribadi',
     icon: 'book',
@@ -35,17 +37,12 @@ export const OnboardingFlow: React.FC = () => {
   });
 
   const [selectedTheme, setSelectedTheme] = useState<ThemeMode>('system');
+  const [accentColor, setAccentColor] = useState<string>('#10B981');
 
   const completeOnboarding = useAppStore((s) => s.completeOnboarding);
   const skipOnboarding = useAppStore((s) => s.skipOnboarding);
 
-  const handleNext = () => {
-    if (currentStep === 0) {
-      setCurrentStep(1);
-      setError('');
-      return;
-    }
-
+  const handleNextStep = () => {
     if (currentStep === 1) {
       if (!bookData.name.trim()) {
         setError('Nama buku tidak boleh kosong');
@@ -67,54 +64,81 @@ export const OnboardingFlow: React.FC = () => {
     }
 
     if (currentStep === 3) {
-      completeOnboarding(bookData, walletData, selectedTheme);
+      setError('');
+      setCurrentStep(4);
+      return;
     }
   };
 
   const handleBack = () => {
-    if (currentStep > 0) {
-      setError('');
-      setCurrentStep((s) => s - 1);
-    }
+    setError('');
+    setCurrentStep((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleFinish = () => {
+    completeOnboarding(
+      {
+        ...bookData,
+        color: accentColor || bookData.color,
+      },
+      walletData,
+      selectedTheme
+    );
   };
 
   const handleSkip = () => {
     skipOnboarding();
   };
 
+  const isFormStep = currentStep >= 1 && currentStep <= 3;
+
   return (
     <div className="relative min-h-screen max-w-md mx-auto bg-surface-light dark:bg-surface-dark flex flex-col justify-between shadow-2xl overflow-hidden">
-      {/* Universal Top Bar: Back (kiri) & Skip (kanan) */}
-      <div className="pt-safe px-6 pt-4 pb-2 flex items-center justify-between z-10">
-        <div>
-          {currentStep > 0 ? (
-            <button
-              type="button"
-              onClick={handleBack}
-              className="p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              aria-label="Kembali"
-            >
-              <ArrowLeft size={20} />
-            </button>
-          ) : (
-            <div className="w-8 h-8" />
-          )}
+      {/* Top Bar Configuration per Step */}
+      {currentStep === 0 ? (
+        /* Step 0 (Consent): Tidak ada top bar */
+        <div className="pt-safe" />
+      ) : currentStep === 4 ? (
+        /* Step 4 (Welcome): Top bar hanya back < ke Tema, tidak ada Lewati */
+        <div className="pt-safe px-6 pt-4 pb-2 flex items-center justify-between z-10">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label="Kembali"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <div className="w-8 h-8" />
         </div>
+      ) : (
+        /* Step 1, 2, 3: Top bar ada back < dan Lewati */
+        <div className="pt-safe px-6 pt-4 pb-2 flex items-center justify-between z-10">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label="Kembali"
+          >
+            <ArrowLeft size={20} />
+          </button>
 
-        {/* Skip button ("Lewati >") */}
-        <button
-          type="button"
-          onClick={handleSkip}
-          className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 py-1.5 px-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-        >
-          <span>Lewati</span>
-          <ChevronRight size={15} />
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={handleSkip}
+            className="inline-flex items-center gap-0.5 text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 py-1.5 px-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <span>Lewati</span>
+            <ChevronRight size={15} />
+          </button>
+        </div>
+      )}
 
-      {/* Slide Content */}
+      {/* Main Slide Content */}
       <div className="flex-1 flex flex-col justify-center overflow-y-auto">
-        {currentStep === 0 && <SlideWelcome />}
+        {currentStep === 0 && (
+          <SlideConsent onStart={() => setCurrentStep(1)} />
+        )}
 
         {currentStep === 1 && (
           <SlideBookSetup
@@ -142,40 +166,48 @@ export const OnboardingFlow: React.FC = () => {
           <SlideThemeSetup
             selectedTheme={selectedTheme}
             onSelectTheme={setSelectedTheme}
+            accentColor={accentColor}
+            onSelectAccentColor={setAccentColor}
+          />
+        )}
+
+        {currentStep === 4 && (
+          <SlideWelcomeFinish
+            onStart={handleFinish}
+            bookName={bookData.name}
+            accountName={walletData.name}
           />
         )}
       </div>
 
-      {/* Universal Bottom Footer: Progress Dots + Bulat Next Button */}
-      <div className="px-6 pb-safe pb-6 pt-2 flex flex-col items-center">
-        {/* Progress Indicator: 4 dots */}
-        <div className="flex justify-center items-center gap-2 mb-4">
-          {[0, 1, 2, 3].map((step) => (
-            <div
-              key={step}
-              className={`transition-all duration-300 rounded-full ${
-                currentStep === step
-                  ? 'w-6 h-2 bg-brand-600 dark:bg-brand-400'
-                  : 'w-2 h-2 bg-slate-300 dark:bg-slate-700'
-              }`}
-            />
-          ))}
-        </div>
+      {/* Footer Shell untuk Step 1, 2, 3: Progress Indicator (3 Dots) + Bulat Next Button */}
+      {isFormStep && (
+        <div className="px-6 pb-safe pb-6 pt-2 flex flex-col items-center animate-fadeIn">
+          {/* Progress Dots (3 dots total: 1/3, 2/3, 3/3) */}
+          <div className="flex justify-center items-center gap-2 mb-4">
+            {[1, 2, 3].map((step) => (
+              <div
+                key={step}
+                className={`transition-all duration-300 rounded-full ${
+                  currentStep === step
+                    ? 'w-6 h-2 bg-brand-600 dark:bg-brand-400'
+                    : 'w-2 h-2 bg-slate-300 dark:bg-slate-700'
+                }`}
+              />
+            ))}
+          </div>
 
-        {/* Circular Next Button */}
-        <button
-          type="button"
-          onClick={handleNext}
-          className="w-14 h-14 rounded-full bg-brand-600 hover:bg-brand-700 active:scale-95 text-white shadow-lg shadow-brand-600/30 flex items-center justify-center transition-all cursor-pointer"
-          aria-label={currentStep === 3 ? 'Selesai' : 'Lanjut'}
-        >
-          {currentStep === 3 ? (
-            <Check size={26} strokeWidth={2.5} />
-          ) : (
+          {/* Circular Next Button */}
+          <button
+            type="button"
+            onClick={handleNextStep}
+            className="w-14 h-14 rounded-full bg-brand-600 hover:bg-brand-700 active:scale-95 text-white shadow-lg shadow-brand-600/30 flex items-center justify-center transition-all cursor-pointer"
+            aria-label="Lanjut ke langkah berikutnya"
+          >
             <ChevronRight size={26} strokeWidth={2.5} />
-          )}
-        </button>
-      </div>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,104 +1,123 @@
 import React from 'react';
-import { Check, Sun, Moon, Laptop, Sparkles, LucideIcon, Palette } from 'lucide-react';
+import { Sun, Moon, Laptop, Check, ChevronDown } from 'lucide-react';
 import { ThemeMode } from '../../types';
+import { applyThemeClass } from '../../store/useAppStore';
 
 interface SlideThemeSetupProps {
   selectedTheme: ThemeMode;
   onSelectTheme: (theme: ThemeMode) => void;
+  accentColor: string;
+  onSelectAccentColor: (color: string) => void;
 }
+
+export const ACCENT_SWATCHES = [
+  { id: 'emerald', label: 'Emerald', color: '#10B981' },
+  { id: 'blue', label: 'Royal Blue', color: '#3B82F6' },
+  { id: 'purple', label: 'Violet', color: '#8B5CF6' },
+  { id: 'rose', label: 'Rose', color: '#F43F5E' },
+  { id: 'amber', label: 'Amber', color: '#F59E0B' },
+  { id: 'cyan', label: 'Cyan', color: '#06B6D4' },
+  { id: 'slate', label: 'Slate', color: '#475569' },
+];
 
 export const SlideThemeSetup: React.FC<SlideThemeSetupProps> = ({
   selectedTheme,
   onSelectTheme,
+  accentColor,
+  onSelectAccentColor,
 }) => {
-  const themeOptions: { id: ThemeMode; label: string; desc: string; icon: LucideIcon }[] = [
-    {
-      id: 'light',
-      label: 'Mode Terang',
-      desc: 'Tampilan cerah, bersih, dan kontras tinggi.',
-      icon: Sun,
-    },
-    {
-      id: 'dark',
-      label: 'Mode Gelap',
-      desc: 'Nyaman di mata untuk malam hari & hemat baterai.',
-      icon: Moon,
-    },
-    {
-      id: 'system',
-      label: 'Ikuti Sistem',
-      desc: 'Otomatis berganti mengikuti preferensi perangkat Anda.',
-      icon: Laptop,
-    },
-  ];
+  const handleThemeChange = (newTheme: ThemeMode) => {
+    onSelectTheme(newTheme);
+    applyThemeClass(newTheme);
+  };
 
   return (
     <div className="flex flex-col px-6 pt-2 pb-4 animate-fadeIn">
-      {/* Center Theme Illustration */}
+      {/* Centered 2-Cards Color Illustration */}
       <div className="flex flex-col items-center text-center mt-2">
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-purple-500/20 via-brand-400/10 to-blue-500/20 dark:from-purple-950/80 dark:to-blue-950/60 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400 shadow-md mb-3">
-          <Palette size={38} strokeWidth={1.8} />
+        <div className="relative w-24 h-20 flex items-center justify-center mb-3">
+          {/* Background tilted card */}
+          <div
+            className="absolute w-16 h-12 rounded-2xl shadow-md rotate-[-12deg] -left-1 top-2 transition-colors duration-300 opacity-80"
+            style={{ backgroundColor: accentColor }}
+          />
+          {/* Foreground card */}
+          <div className="absolute w-16 h-12 rounded-2xl bg-surface-cardLight dark:bg-surface-cardDark border border-slate-200/80 dark:border-slate-700 shadow-lg rotate-[8deg] right-0 top-3 flex items-center justify-center">
+            <div
+              className="w-4 h-4 rounded-full shadow-sm"
+              style={{ backgroundColor: accentColor }}
+            />
+          </div>
         </div>
 
         <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
-          Pilih tampilan tema
+          Pilih tema kamu
         </h2>
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xs">
-          Sesuaikan kenyamanan visual aplikasi. Dapat diubah kapan saja.
+          Sesuaikan warna aksen dan mode tampilan yang nyaman untukmu.
         </p>
       </div>
 
-      {/* Theme Options */}
-      <div className="mt-5 space-y-2.5">
-        {themeOptions.map((opt) => {
-          const isSelected = selectedTheme === opt.id;
-          const Icon = opt.icon;
-          return (
-            <button
-              key={opt.id}
-              type="button"
-              onClick={() => onSelectTheme(opt.id)}
-              className={`w-full flex items-start gap-3.5 p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                isSelected
-                  ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-950/40 shadow-sm ring-1 ring-brand-500'
-                  : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-surface-cardDark hover:border-slate-300'
-              }`}
+      {/* Card List Fields */}
+      <div className="mt-6 bg-white dark:bg-surface-cardDark rounded-2xl border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 shadow-sm overflow-hidden">
+        {/* Field 1: Color Swatch Bar (Strip pilihan warna aksen) */}
+        <div className="p-4 space-y-2.5">
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Warna Aksen
+          </div>
+          <div className="flex items-center justify-between gap-1 overflow-x-auto py-1">
+            {ACCENT_SWATCHES.map((swatch) => {
+              const isSelected = accentColor === swatch.color;
+              return (
+                <button
+                  key={swatch.id}
+                  type="button"
+                  onClick={() => onSelectAccentColor(swatch.color)}
+                  style={{ backgroundColor: swatch.color }}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-white transition-all cursor-pointer ${
+                    isSelected
+                      ? 'ring-2 ring-offset-2 ring-slate-800 dark:ring-offset-slate-900 scale-110 shadow-sm'
+                      : 'opacity-85 hover:opacity-100'
+                  }`}
+                  aria-label={swatch.label}
+                >
+                  {isSelected && <Check size={14} strokeWidth={3} />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Field 2: Mode Tampilan (Dropdown Light / Dark / Sistem) */}
+        <div className="p-4">
+          <label htmlFor="themeSelect" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+            Mode Tampilan
+          </label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-brand-600 dark:text-brand-400">
+              {selectedTheme === 'light' ? (
+                <Sun size={18} />
+              ) : selectedTheme === 'dark' ? (
+                <Moon size={18} />
+              ) : (
+                <Laptop size={18} />
+              )}
+            </div>
+            <select
+              id="themeSelect"
+              value={selectedTheme}
+              onChange={(e) => handleThemeChange(e.target.value as ThemeMode)}
+              className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 appearance-none cursor-pointer"
             >
-              <div
-                className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                  isSelected
-                    ? 'bg-brand-600 text-white shadow-sm'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-                }`}
-              >
-                <Icon size={18} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">
-                    {opt.label}
-                  </span>
-                  {isSelected && (
-                    <span className="w-4 h-4 rounded-full bg-brand-500 text-white flex items-center justify-center">
-                      <Check size={11} strokeWidth={3} />
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-                  {opt.desc}
-                </p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Confirmation banner */}
-      <div className="mt-4 p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-2.5">
-        <Sparkles className="text-emerald-600 dark:text-emerald-400 shrink-0" size={16} />
-        <p className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium leading-tight">
-          Ketuk tombol panah di bawah untuk menyelesaikan onboarding dan masuk ke beranda.
-        </p>
+              <option value="light">Light Mode (Terang)</option>
+              <option value="dark">Dark Mode (Gelap)</option>
+              <option value="system">Ikuti Sistem (Otomatis)</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
+              <ChevronDown size={18} />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

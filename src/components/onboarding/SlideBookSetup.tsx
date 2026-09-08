@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PiggyBank, BookOpen, ChevronRight, X, Check, AlertCircle } from 'lucide-react';
+import { BookOpen, ChevronRight, X, Check, AlertCircle } from 'lucide-react';
 import { BookIconType } from '../../types';
 import { BOOK_ICONS, BOOK_COLORS, BookIconBadge } from '../common/BookIcon';
 
@@ -24,44 +24,44 @@ export const SlideBookSetup: React.FC<SlideBookSetupProps> = ({
 
   return (
     <div className="flex flex-col px-6 pt-2 pb-4 animate-fadeIn">
-      {/* Centered Piggy Bank Illustration */}
+      {/* Centered Book Illustration (Struktur: Buku) */}
       <div className="flex flex-col items-center text-center mt-2">
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-emerald-500/20 via-emerald-400/10 to-brand-500/30 dark:from-emerald-950/80 dark:to-brand-950/60 border border-emerald-500/30 flex items-center justify-center text-brand-600 dark:text-brand-400 shadow-md mb-3">
-          <PiggyBank size={40} strokeWidth={1.8} />
+        <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-brand-600/20 via-emerald-400/15 to-teal-500/20 dark:from-brand-950/80 dark:to-emerald-950/60 border border-brand-500/30 flex items-center justify-center text-brand-600 dark:text-brand-400 shadow-md mb-3">
+          <BookOpen size={40} strokeWidth={1.9} />
         </div>
 
         <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
-          Set up your book first
+          Atur buku pertamamu
         </h2>
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xs">
-          Buku ini menjadi ruang pencatatan keuangan utama Anda.
+          Buku ini menjadi tempat mencatat pos keuangan pertama Anda.
         </p>
       </div>
 
       {/* Card List Fields */}
       <div className="mt-6 bg-white dark:bg-surface-cardDark rounded-2xl border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 shadow-sm overflow-hidden">
-        {/* Field 1: Book Name */}
+        {/* Field 1: Nama Buku */}
         <div className="flex items-center gap-3.5 p-4">
           <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
             <BookOpen size={20} />
           </div>
           <div className="flex-1 min-w-0">
             <label htmlFor="bookNameInput" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              Book Name
+              Nama Buku
             </label>
             <input
               id="bookNameInput"
               type="text"
               value={data.name}
               onChange={(e) => onChange({ ...data, name: e.target.value })}
-              placeholder="mis. Buku Pribadi"
+              placeholder="Masukkan nama buku"
               maxLength={32}
               className="w-full mt-0.5 bg-transparent text-sm font-bold text-slate-900 dark:text-white focus:outline-none placeholder:text-slate-400 placeholder:font-normal"
             />
           </div>
         </div>
 
-        {/* Field 2: Icon & Color (tap to open picker) */}
+        {/* Field 2: Icon (tap to open grid preset picker) */}
         <button
           type="button"
           onClick={() => setIsPickerOpen(true)}
@@ -84,7 +84,7 @@ export const SlideBookSetup: React.FC<SlideBookSetupProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 text-slate-400">
+          <div className="flex items-center gap-1 text-slate-400">
             <span className="text-xs font-medium text-slate-400">Pilih</span>
             <ChevronRight size={18} />
           </div>
@@ -98,13 +98,13 @@ export const SlideBookSetup: React.FC<SlideBookSetupProps> = ({
         </p>
       )}
 
-      {/* Icon & Color Picker Modal */}
+      {/* Grid Preset Icon Picker Modal */}
       {isPickerOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
           <div className="w-full max-w-md bg-white dark:bg-surface-cardDark rounded-t-3xl p-5 shadow-2xl border-t border-slate-200 dark:border-slate-800 space-y-4 max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                Pilih Ikon & Warna Buku
+                Pilih Ikon Buku
               </h3>
               <button
                 type="button"
@@ -145,7 +145,7 @@ export const SlideBookSetup: React.FC<SlideBookSetupProps> = ({
             {/* Color Palette */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                Warna Aksen
+                Warna Aksen Buku
               </label>
               <div className="flex items-center justify-between px-1">
                 {BOOK_COLORS.map((c) => {

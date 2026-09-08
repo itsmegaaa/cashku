@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  CreditCard, 
   Wallet, 
   Banknote, 
   Coins, 
@@ -35,10 +34,9 @@ interface SlideWalletSetupProps {
 }
 
 const ACCOUNT_TYPES: { type: WalletType; label: string; desc: string; defaultIcon: string; defaultColor: string }[] = [
-  { type: 'bank', label: 'Debit Card / Bank', desc: 'BCA, Mandiri, BRI, BNI, Jago, dll.', defaultIcon: 'Landmark', defaultColor: '#0060AF' },
-  { type: 'cash', label: 'Cash / Tunai', desc: 'Uang fisik di dompet atau saku', defaultIcon: 'Banknote', defaultColor: '#10B981' },
-  { type: 'ewallet', label: 'E-Wallet', desc: 'GoPay, OVO, DANA, ShopeePay', defaultIcon: 'Smartphone', defaultColor: '#00AED6' },
-  { type: 'other', label: 'Kartu Kredit', desc: 'Limit & cicilan kartu kredit', defaultIcon: 'CreditCard', defaultColor: '#8B5CF6' },
+  { type: 'bank', label: 'Kartu Debit / Bank', desc: 'BCA, Mandiri, BRI, BNI, dll.', defaultIcon: 'Landmark', defaultColor: '#0060AF' },
+  { type: 'cash', label: 'Uang Tunai / Cash', desc: 'Uang fisik di dompet atau saku', defaultIcon: 'Banknote', defaultColor: '#10B981' },
+  { type: 'ewallet', label: 'Dompet Digital / E-Wallet', desc: 'GoPay, OVO, DANA, ShopeePay', defaultIcon: 'Smartphone', defaultColor: '#00AED6' },
 ];
 
 const CURRENCIES = [
@@ -96,20 +94,20 @@ export const SlideWalletSetup: React.FC<SlideWalletSetupProps> = ({
 
   return (
     <div className="flex flex-col px-6 pt-2 pb-4 animate-fadeIn">
-      {/* Centered Debit Card Illustration & Type Switch Pill */}
+      {/* Centered Card / Wallet Illustration & Sub-label Type Switch */}
       <div className="flex flex-col items-center text-center mt-2">
-        <div className="w-24 h-16 rounded-2xl bg-gradient-to-tr from-slate-900 via-blue-900 to-indigo-800 text-white p-2.5 shadow-lg relative overflow-hidden flex flex-col justify-between border border-white/10">
+        <div className="w-24 h-16 rounded-2xl bg-gradient-to-tr from-brand-700 via-slate-900 to-emerald-800 text-white p-2.5 shadow-lg relative overflow-hidden flex flex-col justify-between border border-white/10">
           <div className="flex justify-between items-start">
             <div className="w-5 h-3.5 rounded bg-amber-400/85 border border-amber-300/40 shadow-inner" />
-            <CreditCard size={14} className="text-white/60" />
+            <Wallet size={15} className="text-white/70" />
           </div>
           <div className="flex justify-between items-end text-[9px] font-mono tracking-widest text-slate-300">
-            <span>•••• 8899</span>
+            <span>•••• 5689</span>
             <span className="text-[8px] uppercase font-sans text-brand-400 font-bold">{data.currency}</span>
           </div>
         </div>
 
-        {/* Interactive Sub-label pill to switch account type */}
+        {/* Sub-label: Tipe Akun + Tombol Switch */}
         <button
           type="button"
           onClick={() => setIsTypeSwitchOpen(true)}
@@ -120,7 +118,7 @@ export const SlideWalletSetup: React.FC<SlideWalletSetupProps> = ({
         </button>
 
         <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight mt-2.5">
-          Set up your account
+          Atur akunmu
         </h2>
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xs">
           Masukkan informasi akun atau rekening pertama Anda.
@@ -129,34 +127,34 @@ export const SlideWalletSetup: React.FC<SlideWalletSetupProps> = ({
 
       {/* Card List Fields */}
       <div className="mt-5 bg-white dark:bg-surface-cardDark rounded-2xl border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 shadow-sm overflow-hidden">
-        {/* Field 1: Account Name */}
+        {/* Field 1: Nama Akun */}
         <div className="flex items-center gap-3.5 p-3.5">
           <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
             <Wallet size={20} />
           </div>
           <div className="flex-1 min-w-0">
             <label htmlFor="accountNameInput" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              Account Name
+              Nama Akun
             </label>
             <input
               id="accountNameInput"
               type="text"
               value={data.name}
               onChange={(e) => onChange({ ...data, name: e.target.value })}
-              placeholder="mis. BCA, Mandiri, Cash"
+              placeholder="Masukkan nama akun"
               className="w-full mt-0.5 bg-transparent text-sm font-bold text-slate-900 dark:text-white focus:outline-none placeholder:text-slate-400 placeholder:font-normal"
             />
           </div>
         </div>
 
-        {/* Field 2: Balance */}
+        {/* Field 2: Saldo */}
         <div className="flex items-center gap-3.5 p-3.5">
           <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <Banknote size={20} />
           </div>
           <div className="flex-1 min-w-0">
             <label htmlFor="balanceInput" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              Balance
+              Saldo
             </label>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="text-xs font-bold text-slate-400">
@@ -169,14 +167,14 @@ export const SlideWalletSetup: React.FC<SlideWalletSetupProps> = ({
                 pattern="[0-9]*"
                 value={balanceText}
                 onChange={(e) => handleBalanceChange(e.target.value)}
-                placeholder="0"
+                placeholder="Masukkan nominal"
                 className="w-full bg-transparent text-sm font-bold tabular-nums text-slate-900 dark:text-white focus:outline-none placeholder:text-slate-400 placeholder:font-normal"
               />
             </div>
           </div>
         </div>
 
-        {/* Field 3: Icon (tap to open picker) */}
+        {/* Field 3: Icon (tap to open grid preset picker) */}
         <button
           type="button"
           onClick={() => setIsIconPickerOpen(true)}
@@ -205,7 +203,7 @@ export const SlideWalletSetup: React.FC<SlideWalletSetupProps> = ({
           </div>
         </button>
 
-        {/* Field 4: Currency (tap to open picker) */}
+        {/* Field 4: Mata Uang (tap to open picker) */}
         <button
           type="button"
           onClick={() => setIsCurrencyPickerOpen(true)}
@@ -217,7 +215,7 @@ export const SlideWalletSetup: React.FC<SlideWalletSetupProps> = ({
             </div>
             <div>
               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Currency
+                Mata Uang
               </div>
               <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate max-w-[190px]">
                 {activeCurrencyObj.label}
@@ -292,7 +290,7 @@ export const SlideWalletSetup: React.FC<SlideWalletSetupProps> = ({
         </div>
       )}
 
-      {/* Icon & Preset Picker Modal */}
+      {/* Grid Preset Icon Picker Modal */}
       {isIconPickerOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
           <div className="w-full max-w-md bg-white dark:bg-surface-cardDark rounded-t-3xl p-5 shadow-2xl border-t border-slate-200 dark:border-slate-800 space-y-4 max-h-[85vh] overflow-y-auto">
