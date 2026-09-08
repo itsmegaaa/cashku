@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { BookIconType, ThemeMode, WalletType } from '../../types';
 import { SlideWelcome } from './SlideWelcome';
@@ -46,22 +46,35 @@ export const OnboardingFlow: React.FC = () => {
 
   return (
     <div className="relative min-h-screen max-w-md mx-auto bg-surface-light dark:bg-surface-dark flex flex-col justify-between shadow-2xl overflow-hidden">
-      {/* Top Bar with Step Dots & Skip button */}
-      <div className="pt-safe px-6 pt-4 flex items-center justify-between z-10">
-        {/* Step Indicator Dots */}
-        <div className="flex items-center gap-1.5">
-          {[0, 1, 2, 3].map((step) => (
-            <div
-              key={step}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                currentStep === step
-                  ? 'w-6 bg-brand-600 dark:bg-brand-400'
-                  : currentStep > step
-                  ? 'w-2 bg-brand-300 dark:bg-brand-800'
-                  : 'w-2 bg-slate-200 dark:bg-slate-700'
-              }`}
-            />
-          ))}
+      {/* Top Bar with Back Button, Step Dots & Skip button */}
+      <div className="pt-safe px-6 pt-3 pb-1 flex items-center justify-between z-10">
+        <div className="flex items-center gap-2.5">
+          {currentStep > 0 && (
+            <button
+              type="button"
+              onClick={() => setCurrentStep((s) => s - 1)}
+              className="p-1 -ml-1 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="Kembali"
+            >
+              <ArrowLeft size={19} />
+            </button>
+          )}
+
+          {/* Step Indicator Dots */}
+          <div className="flex items-center gap-1.5">
+            {[0, 1, 2, 3].map((step) => (
+              <div
+                key={step}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  currentStep === step
+                    ? 'w-6 bg-brand-600 dark:bg-brand-400'
+                    : currentStep > step
+                    ? 'w-2 bg-brand-300 dark:bg-brand-800'
+                    : 'w-2 bg-slate-200 dark:bg-slate-700'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Skip button ("Lewati" dengan ikon panah ke kanan) */}
@@ -76,7 +89,7 @@ export const OnboardingFlow: React.FC = () => {
       </div>
 
       {/* Slide Content */}
-      <div className="flex-1 flex flex-col justify-center pb-safe">
+      <div className="flex-1 flex flex-col pb-safe overflow-y-auto">
         {currentStep === 0 && (
           <SlideWelcome onNext={() => setCurrentStep(1)} />
         )}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowRight, AlertCircle } from 'lucide-react';
 import { WalletType } from '../../types';
 import { WALLET_PRESETS, WalletIconBadge } from '../common/WalletIcon';
 import { formatCurrency } from '../../utils/formatters';
@@ -17,7 +17,7 @@ interface SlideWalletSetupProps {
     icon: string;
     color: string;
   }) => void;
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 const CURRENCY_OPTIONS = [
@@ -34,7 +34,6 @@ export const SlideWalletSetup: React.FC<SlideWalletSetupProps> = ({
   initialBalance = 0,
   initialCurrency = 'IDR',
   onNext,
-  onBack,
 }) => {
   const [selectedPreset, setSelectedPreset] = useState<string>('bca');
   const [name, setName] = useState(initialName);
@@ -70,23 +69,8 @@ export const SlideWalletSetup: React.FC<SlideWalletSetupProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col h-full justify-between px-6 py-6 animate-fadeIn">
+    <form onSubmit={handleSubmit} className="flex flex-col min-h-full justify-between px-6 pt-3 pb-6 animate-fadeIn">
       <div>
-        {/* Step Header */}
-        <div className="flex items-center justify-between mb-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            aria-label="Kembali"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-            Langkah 2 dari 3
-          </span>
-        </div>
-
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
           Akun atau Dompet Pertama
         </h2>

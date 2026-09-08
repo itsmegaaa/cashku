@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, ArrowLeft, Check, AlertCircle } from 'lucide-react';
+import { ArrowRight, Check, AlertCircle } from 'lucide-react';
 import { BookIconType } from '../../types';
 import { BOOK_ICONS, BOOK_COLORS, BookIconBadge } from '../common/BookIcon';
 
@@ -8,7 +8,7 @@ interface SlideBookSetupProps {
   initialIcon?: BookIconType;
   initialColor?: string;
   onNext: (data: { name: string; icon: BookIconType; color: string }) => void;
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const SlideBookSetup: React.FC<SlideBookSetupProps> = ({
@@ -16,7 +16,6 @@ export const SlideBookSetup: React.FC<SlideBookSetupProps> = ({
   initialIcon = 'book',
   initialColor = '#10B981',
   onNext,
-  onBack,
 }) => {
   const [name, setName] = useState(initialName);
   const [selectedIcon, setSelectedIcon] = useState<BookIconType>(initialIcon);
@@ -37,23 +36,8 @@ export const SlideBookSetup: React.FC<SlideBookSetupProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col h-full justify-between px-6 py-6 animate-fadeIn">
+    <form onSubmit={handleSubmit} className="flex flex-col min-h-full justify-between px-6 pt-3 pb-6 animate-fadeIn">
       <div>
-        {/* Step Header */}
-        <div className="flex items-center justify-between mb-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            aria-label="Kembali"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-            Langkah 1 dari 3
-          </span>
-        </div>
-
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
           Buku Pertama Anda
         </h2>

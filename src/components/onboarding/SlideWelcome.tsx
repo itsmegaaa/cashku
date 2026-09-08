@@ -7,10 +7,10 @@ interface SlideWelcomeProps {
 
 export const SlideWelcome: React.FC<SlideWelcomeProps> = ({ onNext }) => {
   return (
-    <div className="flex flex-col h-full justify-between px-6 py-8 text-center animate-fadeIn">
+    <div className="flex flex-col min-h-full justify-between px-6 py-4 text-center animate-fadeIn">
       {/* Top / Brand */}
-      <div className="flex flex-col items-center mt-6">
-        <div className="relative mb-6">
+      <div className="flex flex-col items-center mt-2">
+        <div className="relative mb-5">
           <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-brand-600 to-emerald-400 p-0.5 shadow-elevated flex items-center justify-center">
             <div className="w-full h-full bg-surface-cardLight dark:bg-surface-cardDark rounded-[22px] flex items-center justify-center">
               <img src="/logo.svg" alt="CashKu Logo" className="w-16 h-16" />
@@ -33,7 +33,7 @@ export const SlideWelcome: React.FC<SlideWelcomeProps> = ({ onNext }) => {
       </div>
 
       {/* Feature Highlights */}
-      <div className="space-y-3 my-8 text-left max-w-sm mx-auto w-full">
+      <div className="space-y-3 my-5 text-left max-w-sm mx-auto w-full">
         <div className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/70 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
           <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
             <BookOpen size={20} />

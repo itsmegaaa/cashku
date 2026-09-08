@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Check, Sun, Moon, Laptop, Sparkles, LucideIcon } from 'lucide-react';
+import { Check, Sun, Moon, Laptop, Sparkles, LucideIcon } from 'lucide-react';
 import { ThemeMode } from '../../types';
 import { applyThemeClass } from '../../store/useAppStore';
 
 interface SlideThemeSetupProps {
   initialTheme?: ThemeMode;
   onFinish: (theme: ThemeMode) => void;
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const SlideThemeSetup: React.FC<SlideThemeSetupProps> = ({
   initialTheme = 'system',
   onFinish,
-  onBack,
 }) => {
   const [selectedTheme, setSelectedTheme] = useState<ThemeMode>(initialTheme);
 
@@ -43,23 +42,8 @@ export const SlideThemeSetup: React.FC<SlideThemeSetupProps> = ({
   ];
 
   return (
-    <div className="flex flex-col h-full justify-between px-6 py-6 animate-fadeIn">
+    <div className="flex flex-col min-h-full justify-between px-6 pt-3 pb-6 animate-fadeIn">
       <div>
-        {/* Step Header */}
-        <div className="flex items-center justify-between mb-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            aria-label="Kembali"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-            Langkah 3 dari 3
-          </span>
-        </div>
-
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
           Pilih Tampilan Favorit
         </h2>
