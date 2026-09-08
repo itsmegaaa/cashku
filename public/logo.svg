@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="cashkuGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#047857" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="256" height="256" rx="60" fill="url(#cashkuGrad)" filter="url(#shadow)"/>
+  <!-- Wallet / Book Fold Icon -->
+  <path d="M64 76C64 65 73 56 84 56H180C191 56 200 65 200 76V180C200 191 191 200 180 200H84C73 200 64 191 64 180V76Z" fill="white" fill-opacity="0.15"/>
+  <path d="M52 92C52 83.1634 59.1634 76 68 76H176C184.837 76 192 83.1634 192 92V180C192 188.837 184.837 196 176 196H68C59.1634 196 52 188.837 52 180V92Z" fill="white"/>
+  <path d="M52 108H192" stroke="#059669" stroke-width="4" stroke-linecap="round"/>
+  <!-- Indonesian Rupiah symbol stylized 'K' / Coin -->
+  <circle cx="122" cy="148" r="26" fill="#059669"/>
+  <path d="M116 136V160M116 148H128M116 138L127 148L116 158" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
