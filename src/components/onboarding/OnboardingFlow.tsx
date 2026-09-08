@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ChevronRight } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { BookIconType, ThemeMode, WalletType } from '../../types';
 import { SlideWelcome } from './SlideWelcome';
@@ -63,13 +64,14 @@ export const OnboardingFlow: React.FC = () => {
           ))}
         </div>
 
-        {/* Skip button ("Lewati, atur nanti") - Available on all slides */}
+        {/* Skip button ("Lewati" dengan ikon panah ke kanan) */}
         <button
           type="button"
           onClick={handleSkip}
-          className="text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 py-1.5 px-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 py-1.5 px-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
         >
-          Lewati, atur nanti
+          <span>Lewati</span>
+          <ChevronRight size={15} />
         </button>
       </div>
 
