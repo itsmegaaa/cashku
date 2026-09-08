@@ -176,6 +176,7 @@ export const OnboardingFlow: React.FC = () => {
             onStart={handleFinish}
             bookName={bookData.name}
             accountName={walletData.name}
+            accentColor={accentColor}
           />
         )}
       </div>
@@ -183,28 +184,33 @@ export const OnboardingFlow: React.FC = () => {
       {/* Footer Shell untuk Step 1, 2, 3: Progress Indicator (3 Dots) + Bulat Next Button */}
       {isFormStep && (
         <div className="px-6 pb-safe pb-6 pt-2 flex flex-col items-center animate-fadeIn">
-          {/* Progress Dots (3 dots total: 1/3, 2/3, 3/3) */}
+          {/* Progress Dots (3 dots total: 1/3, 2/3, 3/3; dot aktif berbentuk oval/pill memanjang) */}
           <div className="flex justify-center items-center gap-2 mb-4">
-            {[1, 2, 3].map((step) => (
-              <div
-                key={step}
-                className={`transition-all duration-300 rounded-full ${
-                  currentStep === step
-                    ? 'w-6 h-2 bg-brand-600 dark:bg-brand-400'
-                    : 'w-2 h-2 bg-slate-300 dark:bg-slate-700'
-                }`}
-              />
-            ))}
+            {[1, 2, 3].map((step) => {
+              const isActive = currentStep === step;
+              return (
+                <div
+                  key={step}
+                  className={`transition-all duration-300 rounded-full ${
+                    isActive
+                      ? 'w-7 h-2 shadow-sm'
+                      : 'w-2 h-2 bg-slate-300 dark:bg-slate-700'
+                  }`}
+                  style={isActive ? { backgroundColor: accentColor } : undefined}
+                />
+              );
+            })}
           </div>
 
-          {/* Circular Next Button */}
+          {/* Circular Next Button: bulat warna aksen terpilih, panah putih > */}
           <button
             type="button"
             onClick={handleNextStep}
-            className="w-14 h-14 rounded-full bg-brand-600 hover:bg-brand-700 active:scale-95 text-white shadow-lg shadow-brand-600/30 flex items-center justify-center transition-all cursor-pointer"
+            style={{ backgroundColor: accentColor }}
+            className="w-14 h-14 rounded-full active:scale-95 text-white shadow-lg flex items-center justify-center transition-transform cursor-pointer"
             aria-label="Lanjut ke langkah berikutnya"
           >
-            <ChevronRight size={26} strokeWidth={2.5} />
+            <ChevronRight size={26} strokeWidth={2.5} className="text-white" />
           </button>
         </div>
       )}

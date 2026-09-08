@@ -5,12 +5,14 @@ interface SlideWelcomeFinishProps {
   onStart: () => void;
   bookName: string;
   accountName: string;
+  accentColor?: string;
 }
 
 export const SlideWelcomeFinish: React.FC<SlideWelcomeFinishProps> = ({
   onStart,
   bookName,
   accountName,
+  accentColor = '#10B981',
 }) => {
   return (
     <div className="flex-1 flex flex-col justify-between px-6 pt-2 pb-6 text-center animate-fadeIn min-h-full">
@@ -55,7 +57,8 @@ export const SlideWelcomeFinish: React.FC<SlideWelcomeFinishProps> = ({
         <button
           type="button"
           onClick={onStart}
-          className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold text-sm shadow-lg shadow-brand-600/25 transition-all min-h-[50px] cursor-pointer"
+          style={{ backgroundColor: accentColor }}
+          className="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-2xl active:scale-[0.98] text-white font-bold text-sm shadow-lg transition-all min-h-[50px] cursor-pointer"
         >
           <span>Mulai</span>
           <ArrowRight size={18} />
