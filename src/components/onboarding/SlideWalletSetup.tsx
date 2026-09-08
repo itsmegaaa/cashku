@@ -1,15 +1,29 @@
 import React, { useState } from 'react';
-import { ArrowRight, AlertCircle } from 'lucide-react';
+import { 
+  CreditCard, 
+  Wallet, 
+  Banknote, 
+  Coins, 
+  ChevronRight, 
+  RefreshCw, 
+  X, 
+  Check, 
+  AlertCircle
+} from 'lucide-react';
 import { WalletType } from '../../types';
 import { WALLET_PRESETS, WalletIconBadge } from '../common/WalletIcon';
 import { formatCurrency } from '../../utils/formatters';
 
 interface SlideWalletSetupProps {
-  initialName?: string;
-  initialType?: WalletType;
-  initialBalance?: number;
-  initialCurrency?: string;
-  onNext: (data: {
+  data: {
+    name: string;
+    type: WalletType;
+    initialBalance: number;
+    currency: string;
+    icon: string;
+    color: string;
+  };
+  onChange: (data: {
     name: string;
     type: WalletType;
     initialBalance: number;
@@ -17,185 +31,360 @@ interface SlideWalletSetupProps {
     icon: string;
     color: string;
   }) => void;
-  onBack?: () => void;
+  error?: string;
 }
 
-const CURRENCY_OPTIONS = [
-  { code: 'IDR', label: 'IDR (Rupiah Indonesia)' },
-  { code: 'USD', label: 'USD (US Dollar)' },
-  { code: 'SGD', label: 'SGD (Singapore Dollar)' },
-  { code: 'MYR', label: 'MYR (Malaysian Ringgit)' },
-  { code: 'EUR', label: 'EUR (Euro)' },
+const ACCOUNT_TYPES: { type: WalletType; label: string; desc: string; defaultIcon: string; defaultColor: string }[] = [
+  { type: 'bank', label: 'Debit Card / Bank', desc: 'BCA, Mandiri, BRI, BNI, Jago, dll.', defaultIcon: 'Landmark', defaultColor: '#0060AF' },
+  { type: 'cash', label: 'Cash / Tunai', desc: 'Uang fisik di dompet atau saku', defaultIcon: 'Banknote', defaultColor: '#10B981' },
+  { type: 'ewallet', label: 'E-Wallet', desc: 'GoPay, OVO, DANA, ShopeePay', defaultIcon: 'Smartphone', defaultColor: '#00AED6' },
+  { type: 'other', label: 'Kartu Kredit', desc: 'Limit & cicilan kartu kredit', defaultIcon: 'CreditCard', defaultColor: '#8B5CF6' },
+];
+
+const CURRENCIES = [
+  { code: 'IDR', label: 'Indonesian Rupiah (IDR)', symbol: 'Rp' },
+  { code: 'USD', label: 'US Dollar (USD)', symbol: '$' },
+  { code: 'SGD', label: 'Singapore Dollar (SGD)', symbol: 'S$' },
+  { code: 'MYR', label: 'Malaysian Ringgit (MYR)', symbol: 'RM' },
+  { code: 'EUR', label: 'Euro (EUR)', symbol: '€' },
 ];
 
 export const SlideWalletSetup: React.FC<SlideWalletSetupProps> = ({
-  initialName = 'BCA',
-  initialType = 'bank',
-  initialBalance = 0,
-  initialCurrency = 'IDR',
-  onNext,
+  data,
+  onChange,
+  error,
 }) => {
-  const [selectedPreset, setSelectedPreset] = useState<string>('bca');
-  const [name, setName] = useState(initialName);
-  const [walletType, setWalletType] = useState<WalletType>(initialType);
-  const [balanceInput, setBalanceInput] = useState<string>(initialBalance > 0 ? String(initialBalance) : '');
-  const [currency, setCurrency] = useState(initialCurrency);
-  const [color, setColor] = useState('#0060AF');
-  const [touched, setTouched] = useState(false);
+  const [balanceText, setBalanceText] = useState<string>(
+    data.initialBalance > 0 ? String(data.initialBalance) : ''
+  );
+  const [isTypeSwitchOpen, setIsTypeSwitchOpen] = useState(false);
+  const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
+  const [isCurrencyPickerOpen, setIsCurrencyPickerOpen] = useState(false);
 
-  const numericBalance = parseFloat(balanceInput.replace(/[^0-9]/g, '')) || 0;
-  const isValid = name.trim().length > 0;
+  const activeTypeObj = ACCOUNT_TYPES.find((t) => t.type === data.type) || ACCOUNT_TYPES[0];
+  const activeCurrencyObj = CURRENCIES.find((c) => c.code === data.currency) || CURRENCIES[0];
 
-  const handleSelectPreset = (preset: typeof WALLET_PRESETS[0]) => {
-    setSelectedPreset(preset.id);
-    setName(preset.defaultName);
-    setWalletType(preset.type);
-    setColor(preset.color);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setTouched(true);
-    if (!isValid) return;
-
-    onNext({
-      name: name.trim(),
-      type: walletType,
-      initialBalance: numericBalance,
-      currency,
-      icon: walletType === 'bank' ? 'Landmark' : walletType === 'ewallet' ? 'Smartphone' : 'Banknote',
-      color,
+  const handleBalanceChange = (val: string) => {
+    const cleanNum = val.replace(/[^0-9]/g, '');
+    setBalanceText(cleanNum);
+    onChange({
+      ...data,
+      initialBalance: parseFloat(cleanNum) || 0,
     });
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col min-h-full justify-between px-6 pt-3 pb-6 animate-fadeIn">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Akun atau Dompet Pertama
-        </h2>
-        <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
-          Tentukan rekening bank, dompet digital, atau uang tunai yang pertama kali ingin dipantau.
-        </p>
+  const handleSelectType = (accType: typeof ACCOUNT_TYPES[0]) => {
+    onChange({
+      ...data,
+      type: accType.type,
+      icon: accType.defaultIcon,
+      color: accType.defaultColor,
+    });
+    setIsTypeSwitchOpen(false);
+  };
 
-        {/* Quick Presets */}
-        <div className="mt-5">
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Pilihan Cepat
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {WALLET_PRESETS.slice(0, 6).map((preset) => {
-              const isSelected = selectedPreset === preset.id;
-              return (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => handleSelectPreset(preset)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
-                    isSelected
-                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-300 font-semibold ring-1 ring-brand-500'
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  <WalletIconBadge type={preset.type} size={14} />
-                  <span>{preset.label}</span>
-                </button>
-              );
-            })}
+  const handleSelectPreset = (preset: typeof WALLET_PRESETS[0]) => {
+    onChange({
+      ...data,
+      name: preset.defaultName,
+      type: preset.type,
+      icon: preset.type === 'bank' ? 'Landmark' : preset.type === 'ewallet' ? 'Smartphone' : 'Banknote',
+      color: preset.color,
+    });
+    setIsIconPickerOpen(false);
+  };
+
+  return (
+    <div className="flex flex-col px-6 pt-2 pb-4 animate-fadeIn">
+      {/* Centered Debit Card Illustration & Type Switch Pill */}
+      <div className="flex flex-col items-center text-center mt-2">
+        <div className="w-24 h-16 rounded-2xl bg-gradient-to-tr from-slate-900 via-blue-900 to-indigo-800 text-white p-2.5 shadow-lg relative overflow-hidden flex flex-col justify-between border border-white/10">
+          <div className="flex justify-between items-start">
+            <div className="w-5 h-3.5 rounded bg-amber-400/85 border border-amber-300/40 shadow-inner" />
+            <CreditCard size={14} className="text-white/60" />
+          </div>
+          <div className="flex justify-between items-end text-[9px] font-mono tracking-widest text-slate-300">
+            <span>•••• 8899</span>
+            <span className="text-[8px] uppercase font-sans text-brand-400 font-bold">{data.currency}</span>
           </div>
         </div>
 
-        {/* Name Input */}
-        <div className="mt-4">
-          <label htmlFor="walletName" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            Nama Akun / Dompet <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="walletName"
-            type="text"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setTouched(true);
-            }}
-            placeholder="Contoh: BCA Tabungan, GoPay, Dompet Saku"
-            className={`w-full px-4 py-3 rounded-xl border bg-white dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
-              touched && !isValid
-                ? 'border-red-400 focus:ring-red-300'
-                : 'border-slate-300 dark:border-slate-700 focus:ring-brand-500'
-            }`}
-          />
-          {touched && !isValid && (
-            <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-              <AlertCircle size={14} />
-              Nama akun tidak boleh kosong.
-            </p>
-          )}
-        </div>
+        {/* Interactive Sub-label pill to switch account type */}
+        <button
+          type="button"
+          onClick={() => setIsTypeSwitchOpen(true)}
+          className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+        >
+          <span>{activeTypeObj.label}</span>
+          <RefreshCw size={11} className="text-brand-600 dark:text-brand-400" />
+        </button>
 
-        {/* Balance Input with numeric keypad */}
-        <div className="mt-4">
-          <label htmlFor="initialBalance" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            Saldo Awal Saat Ini
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm font-semibold">
-              Rp
-            </div>
+        <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight mt-2.5">
+          Set up your account
+        </h2>
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xs">
+          Masukkan informasi akun atau rekening pertama Anda.
+        </p>
+      </div>
+
+      {/* Card List Fields */}
+      <div className="mt-5 bg-white dark:bg-surface-cardDark rounded-2xl border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 shadow-sm overflow-hidden">
+        {/* Field 1: Account Name */}
+        <div className="flex items-center gap-3.5 p-3.5">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+            <Wallet size={20} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <label htmlFor="accountNameInput" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Account Name
+            </label>
             <input
-              id="initialBalance"
+              id="accountNameInput"
               type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={balanceInput}
-              onChange={(e) => {
-                const val = e.target.value.replace(/[^0-9]/g, '');
-                setBalanceInput(val);
-              }}
-              placeholder="0"
-              className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 text-lg font-semibold tabular-nums focus:outline-none focus:ring-2 focus:ring-brand-500"
+              value={data.name}
+              onChange={(e) => onChange({ ...data, name: e.target.value })}
+              placeholder="mis. BCA, Mandiri, Cash"
+              className="w-full mt-0.5 bg-transparent text-sm font-bold text-slate-900 dark:text-white focus:outline-none placeholder:text-slate-400 placeholder:font-normal"
             />
           </div>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            Terbaca: <span className="font-semibold text-brand-600 dark:text-brand-400">{formatCurrency(numericBalance, currency)}</span>
-          </p>
         </div>
 
-        {/* Currency Dropdown */}
-        <div className="mt-4">
-          <label htmlFor="currencySelect" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            Mata Uang
-          </label>
-          <select
-            id="currencySelect"
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
-          >
-            {CURRENCY_OPTIONS.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.label}
-              </option>
-            ))}
-          </select>
+        {/* Field 2: Balance */}
+        <div className="flex items-center gap-3.5 p-3.5">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <Banknote size={20} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <label htmlFor="balanceInput" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Balance
+            </label>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-xs font-bold text-slate-400">
+                {activeCurrencyObj.symbol}
+              </span>
+              <input
+                id="balanceInput"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={balanceText}
+                onChange={(e) => handleBalanceChange(e.target.value)}
+                placeholder="0"
+                className="w-full bg-transparent text-sm font-bold tabular-nums text-slate-900 dark:text-white focus:outline-none placeholder:text-slate-400 placeholder:font-normal"
+              />
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Next Button */}
-      <div className="mt-8">
+        {/* Field 3: Icon (tap to open picker) */}
         <button
-          type="submit"
-          disabled={!isValid}
-          className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-semibold shadow-md transition-all text-base min-h-[50px] cursor-pointer ${
-            isValid
-              ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-brand-600/25 active:scale-[0.98]'
-              : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-          }`}
+          type="button"
+          onClick={() => setIsIconPickerOpen(true)}
+          className="w-full flex items-center justify-between p-3.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
         >
-          <span>Lanjut ke Pilihan Tema</span>
-          <ArrowRight size={18} />
+          <div className="flex items-center gap-3.5">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0"
+              style={{ backgroundColor: data.color }}
+            >
+              <WalletIconBadge type={data.type} iconName={data.icon} size={20} />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Icon
+              </div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+                {data.name || 'Pilih Ikon'}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 text-slate-400">
+            <span className="text-xs font-medium text-slate-400">Pilih</span>
+            <ChevronRight size={18} />
+          </div>
+        </button>
+
+        {/* Field 4: Currency (tap to open picker) */}
+        <button
+          type="button"
+          onClick={() => setIsCurrencyPickerOpen(true)}
+          className="w-full flex items-center justify-between p-3.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <Coins size={20} />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Currency
+              </div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5 truncate max-w-[190px]">
+                {activeCurrencyObj.label}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 text-slate-400">
+            <span className="text-xs font-medium text-slate-400">{data.currency}</span>
+            <ChevronRight size={18} />
+          </div>
         </button>
       </div>
-    </form>
+
+      {error && (
+        <p className="mt-2 text-xs text-red-500 flex items-center gap-1 px-1">
+          <AlertCircle size={14} />
+          <span>{error}</span>
+        </p>
+      )}
+
+      {/* Helper text */}
+      <p className="mt-2 text-[11px] text-slate-400 px-1">
+        Saldo terdaftar: <span className="font-semibold text-slate-700 dark:text-slate-300">{formatCurrency(data.initialBalance, data.currency)}</span>
+      </p>
+
+      {/* Account Type Switcher Modal */}
+      {isTypeSwitchOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-white dark:bg-surface-cardDark rounded-t-3xl p-5 shadow-2xl border-t border-slate-200 dark:border-slate-800 space-y-3 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                Ganti Jenis Akun
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsTypeSwitchOpen(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {ACCOUNT_TYPES.map((t) => {
+                const isSelected = data.type === t.type;
+                return (
+                  <button
+                    key={t.type}
+                    type="button"
+                    onClick={() => handleSelectType(t)}
+                    className={`w-full flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                      isSelected
+                        ? 'border-brand-500 bg-brand-50/60 dark:bg-brand-950/50 text-brand-700 dark:text-brand-300 font-semibold ring-1 ring-brand-500'
+                        : 'border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-white">
+                        {t.label}
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        {t.desc}
+                      </div>
+                    </div>
+                    {isSelected && <Check size={16} className="text-brand-600 dark:text-brand-400" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Icon & Preset Picker Modal */}
+      {isIconPickerOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-white dark:bg-surface-cardDark rounded-t-3xl p-5 shadow-2xl border-t border-slate-200 dark:border-slate-800 space-y-4 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                Pilih Preset Akun / Dompet
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsIconPickerOpen(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              {WALLET_PRESETS.map((preset) => {
+                const isSelected = data.name === preset.defaultName;
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => handleSelectPreset(preset)}
+                    className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      isSelected
+                        ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/50 text-brand-600 font-bold ring-1 ring-brand-500'
+                        : 'border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-sm"
+                      style={{ backgroundColor: preset.color }}
+                    >
+                      <WalletIconBadge type={preset.type} size={16} />
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-800 dark:text-slate-200">
+                      {preset.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Currency Picker Modal */}
+      {isCurrencyPickerOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-white dark:bg-surface-cardDark rounded-t-3xl p-5 shadow-2xl border-t border-slate-200 dark:border-slate-800 space-y-3 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                Pilih Mata Uang
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsCurrencyPickerOpen(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-1.5">
+              {CURRENCIES.map((c) => {
+                const isSelected = data.currency === c.code;
+                return (
+                  <button
+                    key={c.code}
+                    type="button"
+                    onClick={() => {
+                      onChange({ ...data, currency: c.code });
+                      setIsCurrencyPickerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                      isSelected
+                        ? 'border-brand-500 bg-brand-50/60 dark:bg-brand-950/50 text-brand-700 dark:text-brand-300 font-semibold ring-1 ring-brand-500'
+                        : 'border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <div>
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">{c.label}</span>
+                    </div>
+                    <span className="text-xs font-bold text-brand-600 dark:text-brand-400 font-mono">{c.symbol}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };

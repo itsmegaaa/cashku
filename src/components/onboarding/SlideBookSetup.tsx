@@ -1,165 +1,182 @@
 import React, { useState } from 'react';
-import { ArrowRight, Check, AlertCircle } from 'lucide-react';
+import { PiggyBank, BookOpen, ChevronRight, X, Check, AlertCircle } from 'lucide-react';
 import { BookIconType } from '../../types';
 import { BOOK_ICONS, BOOK_COLORS, BookIconBadge } from '../common/BookIcon';
 
 interface SlideBookSetupProps {
-  initialName?: string;
-  initialIcon?: BookIconType;
-  initialColor?: string;
-  onNext: (data: { name: string; icon: BookIconType; color: string }) => void;
-  onBack?: () => void;
+  data: {
+    name: string;
+    icon: BookIconType;
+    color: string;
+  };
+  onChange: (data: { name: string; icon: BookIconType; color: string }) => void;
+  error?: string;
 }
 
 export const SlideBookSetup: React.FC<SlideBookSetupProps> = ({
-  initialName = 'Buku Pribadi',
-  initialIcon = 'book',
-  initialColor = '#10B981',
-  onNext,
+  data,
+  onChange,
+  error,
 }) => {
-  const [name, setName] = useState(initialName);
-  const [selectedIcon, setSelectedIcon] = useState<BookIconType>(initialIcon);
-  const [selectedColor, setSelectedColor] = useState<string>(initialColor);
-  const [touched, setTouched] = useState(false);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
 
-  const isValid = name.trim().length > 0;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setTouched(true);
-    if (!isValid) return;
-    onNext({
-      name: name.trim(),
-      icon: selectedIcon,
-      color: selectedColor,
-    });
-  };
+  const activeIconItem = BOOK_ICONS.find((i) => i.type === data.icon) || BOOK_ICONS[0];
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col min-h-full justify-between px-6 pt-3 pb-6 animate-fadeIn">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Buku Pertama Anda
+    <div className="flex flex-col px-6 pt-2 pb-4 animate-fadeIn">
+      {/* Centered Piggy Bank Illustration */}
+      <div className="flex flex-col items-center text-center mt-2">
+        <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-emerald-500/20 via-emerald-400/10 to-brand-500/30 dark:from-emerald-950/80 dark:to-brand-950/60 border border-emerald-500/30 flex items-center justify-center text-brand-600 dark:text-brand-400 shadow-md mb-3">
+          <PiggyBank size={40} strokeWidth={1.8} />
+        </div>
+
+        <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+          Set up your book first
         </h2>
-        <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
-          Setiap buku mencatat pos keuangan mandiri. Anda bisa menambahkan buku lain nanti.
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xs">
+          Buku ini menjadi ruang pencatatan keuangan utama Anda.
         </p>
-
-        {/* Live Preview Card */}
-        <div className="mt-6 p-4 rounded-2xl bg-white dark:bg-surface-cardDark border border-slate-200/80 dark:border-slate-700/60 shadow-sm flex items-center gap-4">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md transition-colors"
-            style={{ backgroundColor: selectedColor }}
-          >
-            <BookIconBadge icon={selectedIcon} size={28} />
-          </div>
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Preview Buku</div>
-            <div className="text-lg font-bold text-slate-800 dark:text-white truncate max-w-[200px]">
-              {name.trim() || 'Nama Buku...'}
-            </div>
-            <div className="text-xs text-brand-600 dark:text-brand-400 font-medium">Buku Utama</div>
-          </div>
-        </div>
-
-        {/* Name Input */}
-        <div className="mt-6">
-          <label htmlFor="bookName" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            Nama Buku <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="bookName"
-            type="text"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setTouched(true);
-            }}
-            placeholder="Contoh: Buku Pribadi, Usaha Kafe"
-            maxLength={32}
-            className={`w-full px-4 py-3 rounded-xl border bg-white dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
-              touched && !isValid
-                ? 'border-red-400 focus:ring-red-300'
-                : 'border-slate-300 dark:border-slate-700 focus:ring-brand-500 focus:border-brand-500'
-            }`}
-          />
-          {touched && !isValid && (
-            <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-              <AlertCircle size={14} />
-              Nama buku tidak boleh kosong.
-            </p>
-          )}
-        </div>
-
-        {/* Icon Preset Picker */}
-        <div className="mt-5">
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Pilih Ikon Buku
-          </label>
-          <div className="grid grid-cols-4 gap-2.5">
-            {BOOK_ICONS.map((item) => {
-              const isSelected = selectedIcon === item.type;
-              return (
-                <button
-                  key={item.type}
-                  type="button"
-                  onClick={() => setSelectedIcon(item.type)}
-                  className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all cursor-pointer ${
-                    isSelected
-                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/40 text-brand-600 dark:text-brand-400 shadow-sm ring-1 ring-brand-500'
-                      : 'border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-300'
-                  }`}
-                >
-                  <BookIconBadge icon={item.type} size={20} />
-                  <span className="text-[11px] mt-1 font-medium truncate max-w-full">{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Color Palette Picker */}
-        <div className="mt-5">
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Warna Aksen Buku
-          </label>
-          <div className="flex items-center gap-3">
-            {BOOK_COLORS.map((color) => {
-              const isSelected = selectedColor === color;
-              return (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setSelectedColor(color)}
-                  style={{ backgroundColor: color }}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center text-white transition-transform cursor-pointer ${
-                    isSelected ? 'ring-2 ring-offset-2 ring-slate-800 dark:ring-offset-slate-900 scale-110' : 'opacity-85 hover:opacity-100'
-                  }`}
-                  aria-label={`Warna ${color}`}
-                >
-                  {isSelected && <Check size={16} strokeWidth={3} />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </div>
 
-      {/* Next Button */}
-      <div className="mt-8">
+      {/* Card List Fields */}
+      <div className="mt-6 bg-white dark:bg-surface-cardDark rounded-2xl border border-slate-200/80 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 shadow-sm overflow-hidden">
+        {/* Field 1: Book Name */}
+        <div className="flex items-center gap-3.5 p-4">
+          <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
+            <BookOpen size={20} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <label htmlFor="bookNameInput" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Book Name
+            </label>
+            <input
+              id="bookNameInput"
+              type="text"
+              value={data.name}
+              onChange={(e) => onChange({ ...data, name: e.target.value })}
+              placeholder="mis. Buku Pribadi"
+              maxLength={32}
+              className="w-full mt-0.5 bg-transparent text-sm font-bold text-slate-900 dark:text-white focus:outline-none placeholder:text-slate-400 placeholder:font-normal"
+            />
+          </div>
+        </div>
+
+        {/* Field 2: Icon & Color (tap to open picker) */}
         <button
-          type="submit"
-          disabled={!isValid}
-          className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-semibold shadow-md transition-all text-base min-h-[50px] cursor-pointer ${
-            isValid
-              ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-brand-600/25 active:scale-[0.98]'
-              : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-          }`}
+          type="button"
+          onClick={() => setIsPickerOpen(true)}
+          className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
         >
-          <span>Lanjut ke Akun & Dompet</span>
-          <ArrowRight size={18} />
+          <div className="flex items-center gap-3.5">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0"
+              style={{ backgroundColor: data.color }}
+            >
+              <BookIconBadge icon={data.icon} size={20} />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                Icon
+              </div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+                {activeIconItem.label}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-slate-400">
+            <span className="text-xs font-medium text-slate-400">Pilih</span>
+            <ChevronRight size={18} />
+          </div>
         </button>
       </div>
-    </form>
+
+      {error && (
+        <p className="mt-2 text-xs text-red-500 flex items-center gap-1 px-1">
+          <AlertCircle size={14} />
+          <span>{error}</span>
+        </p>
+      )}
+
+      {/* Icon & Color Picker Modal */}
+      {isPickerOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-white dark:bg-surface-cardDark rounded-t-3xl p-5 shadow-2xl border-t border-slate-200 dark:border-slate-800 space-y-4 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                Pilih Ikon & Warna Buku
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsPickerOpen(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Icon Presets Grid */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                Pilihan Ikon
+              </label>
+              <div className="grid grid-cols-4 gap-2">
+                {BOOK_ICONS.map((item) => {
+                  const isSelected = data.icon === item.type;
+                  return (
+                    <button
+                      key={item.type}
+                      type="button"
+                      onClick={() => onChange({ ...data, icon: item.type })}
+                      className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 text-[11px] transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400 font-bold ring-1 ring-brand-500'
+                          : 'border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <BookIconBadge icon={item.type} size={20} />
+                      <span className="truncate max-w-full">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Color Palette */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                Warna Aksen
+              </label>
+              <div className="flex items-center justify-between px-1">
+                {BOOK_COLORS.map((c) => {
+                  const isSelected = data.color === c;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => onChange({ ...data, color: c })}
+                      style={{ backgroundColor: c }}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-white transition-transform cursor-pointer ${
+                        isSelected ? 'ring-2 ring-offset-2 ring-slate-800 dark:ring-offset-slate-900 scale-110' : 'opacity-85'
+                      }`}
+                    >
+                      {isSelected && <Check size={14} strokeWidth={3} />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsPickerOpen(false)}
+              className="w-full py-3 rounded-xl bg-brand-600 text-white font-semibold text-xs shadow-md mt-2 cursor-pointer"
+            >
+              Gunakan Pilihan Ini
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
